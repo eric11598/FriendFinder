@@ -339,13 +339,13 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="matchName">Modal title</h5>
+                            <h5 class="modal-title" id="matchName"></h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <img id="matchPicture" src="">
+                            <img id="matchPicture" style="height:200px;width:200px" src="">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -361,7 +361,6 @@
                 <div class="container">
                     <p>
                         <a href="/api/friends">API Table Link</a> |
-                        <a href="/api/waitlist">API Wait List</a>
                 </div>
             </footer>
 
@@ -374,15 +373,12 @@
 </html>
 
 <script type="text/javascript">
-    // In this code below we create the Front-end JavaScript which "POSTS" our form data to our express server.
-    // In essence, when the user hits submit, jQuery grabs all of the fields then sends a post request to our api
-    // Our api recognizes the route (/api/tables)... and then runs the associated code (found in api-routes.js).
-    // In this case the associated code "saves" the data to the table-data.js file or waitinglist-data.js file
+
 
     $(".submit").on("click", function (event) {
         event.preventDefault();
 
-        var score = [];
+        var scores = [];
         var message = '';
 
         for (var x = 0; x < 10; x++) {
@@ -392,7 +388,7 @@
 
             for (var i = 0, length = radios.length; i < length; i++) {
                 if (radios[i].checked) {
-                    score.push(radios[i].value);
+                    scores.push(radios[i].value);
                     checked = true;
                     break;
                 }
@@ -405,33 +401,28 @@
 
         if (checked) {
             var newFriend = {
-                friendName: $("#name").val().trim(),
+                name: $("#name").val().trim(),
                 picture: $("#picture").val().trim(),
-                answers: score
+                scores: scores
             };
 
             console.log(newFriend);
+            
 
-            $.post("/api/friends", newFriend, function (data) {
+            $.ajax({
+                method: "POST",
+                url: "/api/friends",
+                data: newFriend
+            }).then(function (data) {
+                if (data) {
 
-                $("#matchName").text(data.name);
-                $("#matchPicture").attr("src", data.photo);
-                $("#results-modal").modal("toggle");
-
-                // Clear the form when submitting
-                /*
-                $("#reserve-name").val("");
-                $("#reserve-phone").val("");
-                $("#reserve-email").val("");
-                $("#reserve-unique-id").val("");*/
-
+                    $("#matchName").text("Your match: "+data.name);
+                    $("#matchPicture").attr("src", data.photo);
+                    $("#results-modal").modal("toggle");
+                }
             });
-
-
+        
         }
-
-
-
     });
 
 </script>
